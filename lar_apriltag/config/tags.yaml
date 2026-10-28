@@ -1,0 +1,9 @@
+# size = lado do quadrado PRETO da tag (m).
+# Placa de 0.40 m com margem branca de 1 celula (de 10) em cada lado => 0.40 * 8/10 = 0.32 m.
+# O frame TF publicado se chama "tag_detected" (diferente de "apriltag_link", que vem do URDF,
+# para nao haver dois pais no TF).
+standalone_tags:
+  [
+    {id: 0, size: 0.32, name: tag_detected}
+  ]
+tag_bundles: []

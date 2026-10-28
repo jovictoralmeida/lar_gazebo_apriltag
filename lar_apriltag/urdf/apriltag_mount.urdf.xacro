@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- Incluido no URDF do Husky via CPR_URDF_EXTRAS (ver docker/entrypoint.sh).
+     - apriltag_plate_link : placa fina com a textura da tag36h11 id 0 (visual)
+     - apriltag_link       : frame da tag na CONVENCAO DO APRILTAG
+                             (x p/ direita, y p/ baixo na imagem, z PARA DENTRO da tag).
+                             Vista de cima com a frente do robo para o topo da imagem:
+                             x_tag = -y_base, y_tag = -x_base, z_tag = -z_base. -->
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:property name="tag_plate_size" value="0.40"/>      <!-- lado da placa (m), incl. margem branca -->
+  <xacro:property name="tag_plate_thickness" value="0.002"/>
+  <xacro:property name="tag_mount_z" value="0.20"/>          <!-- ajuste fino da altura sobre top_plate_link -->
+
+  <link name="apriltag_plate_link">
+    <visual>
+      <origin xyz="0 0 ${tag_plate_thickness/2}" rpy="0 0 0"/>
+      <geometry><box size="${tag_plate_size} ${tag_plate_size} ${tag_plate_thickness}"/></geometry>
+    </visual>
+  </link>
+  <joint name="apriltag_plate_joint" type="fixed">
+    <parent link="top_plate_link"/>
+    <child link="apriltag_plate_link"/>
+    <origin xyz="0 0 ${tag_mount_z}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="apriltag_link"/>
+  <joint name="apriltag_joint" type="fixed">
+    <parent link="apriltag_plate_link"/>
+    <child link="apriltag_link"/>
+    <origin xyz="0 0 ${tag_plate_thickness}" rpy="${pi} 0 ${-pi/2}"/>
+  </joint>
+
+  <gazebo reference="apriltag_plate_link">
+    <material>LarTag/Tag36h11_0</material>
+  </gazebo>
+</robot>

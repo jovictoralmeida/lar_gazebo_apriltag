@@ -1,0 +1,27 @@
+services:
+  lar_apriltag:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: lar-gazebo-apriltag:noetic
+    container_name: lar_gazebo_apriltag
+    network_mode: host
+    ipc: host
+    environment:
+      DISPLAY: ${DISPLAY}
+      QT_X11_NO_MITSHM: "1"
+      NVIDIA_DRIVER_CAPABILITIES: all
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev/dri:/dev/dri
+      # Edicao ao vivo do pacote (launch/config/urdf/scripts) sem rebuild da imagem:
+      - ./lar_apriltag:/ws/src/lar_apriltag:rw
+    # GPU NVIDIA (requer nvidia-container-toolkit): descomente
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices: [{driver: nvidia, count: all, capabilities: [gpu]}]
+    working_dir: /ws
+    stdin_open: true
+    tty: true
+    command: bash

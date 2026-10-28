@@ -1,0 +1,19 @@
+// Textura instalada em /usr/share/gazebo-11/media/materials/textures pelo Dockerfile
+material LarTag/Tag36h11_0
+{
+  technique
+  {
+    pass
+    {
+      ambient 1 1 1 1
+      diffuse 1 1 1 1
+      specular 0 0 0 1 1
+      texture_unit
+      {
+        texture lar_tag36_11_00000.png
+        filtering none
+        max_anisotropy 16
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+<launch>
+  <arg name="hector_slam" default="false"/>
+  <!-- Posicao da camera fixa no referencial do mundo do Gazebo (olhando para baixo). -->
+  <arg name="cam_x" default="6.7"/>
+  <arg name="cam_y" default="4.4"/>
+  <arg name="cam_z" default="3.0"/>
+  <!-- Giro da camera em torno do eixo vertical (rad). 1.5708 = 90 graus. -->
+  <arg name="cam_yaw" default="1.5708"/>
+  <!-- Correcao (rad) de rotacao da textura na placa, em torno do eixo z da tag. -->
+  <arg name="tag_yaw_correction" default="3.1416"/>
+  <!-- Abre o RViz com a trajetoria (frame world). -->
+  <arg name="rviz" default="true"/>
+
+  <!-- 1) Laboratorio + Husky (lar_gazebo) -->
+  <include file="$(find lar_gazebo)/launch/lar_husky.launch">
+    <arg name="hector_slam" value="$(arg hector_slam)"/>
+  </include>
+
+  <!-- 2) Camera fixa no mundo (espera o Gazebo subir) -->
+  <node name="spawn_overhead_camera" pkg="gazebo_ros" type="spawn_model" output="screen"
+        args="-sdf -file $(find lar_apriltag)/sdf/overhead_camera.sdf -model overhead_camera -x $(arg cam_x) -y $(arg cam_y) -z $(arg cam_z) -P 1.5707963 -Y $(arg cam_yaw)"/>
+
+  <!-- TF world -> frame optico da camera (z para baixo, x = -y_world, y = -x_world) -->
+  <node name="world_to_overhead_camera_base" pkg="tf2_ros" type="static_transform_publisher"
+        args="$(arg cam_x) $(arg cam_y) $(arg cam_z) $(arg cam_yaw) 0 0 world overhead_camera_base_frame"/>
+  <node name="overhead_camera_base_to_optical" pkg="tf2_ros" type="static_transform_publisher"
+        args="0 0 0 -1.5707963 0 3.1415927 overhead_camera_base_frame overhead_camera_optical_frame"/>
+
+  <!-- 3) Deteccao da AprilTag -->
+  <node pkg="apriltag_ros" type="apriltag_ros_continuous_node" name="apriltag_ros_continuous_node"
+        ns="apriltag" clear_params="true" output="screen">
+    <remap from="image_rect" to="/overhead_camera/image_raw"/>
+    <remap from="camera_info" to="/overhead_camera/camera_info"/>
+    <param name="publish_tag_detections_image" type="bool" value="true"/>
+    <rosparam command="load" file="$(find lar_apriltag)/config/settings.yaml"/>
+    <rosparam command="load" file="$(find lar_apriltag)/config/tags.yaml"/>
+  </node>
+
+  <!-- 4) Pose do robo (base_link no mundo) a partir da tag -->
+  <node pkg="lar_apriltag" type="apriltag_robot_localization.py" name="apriltag_robot_localization"
+        output="screen">
+    <param name="world_frame" value="world"/>
+    <param name="tag_frame" value="tag_detected"/>
+    <param name="robot_frame" value="base_link"/>
+    <param name="mount_frame" value="apriltag_link"/>
+    <param name="tag_yaw_correction" value="$(arg tag_yaw_correction)"/>
+    <param name="model_name" value="husky"/>
+    <param name="path_min_distance" value="0.02"/>
+    <param name="path_max_points" value="5000"/>
+  </node>
+
+  <!-- 5) RViz: trajetoria estimada (verde) e real (vermelha) no frame world -->
+  <node if="$(arg rviz)" name="rviz_trajectory" pkg="rviz" type="rviz" output="log"
+        args="-d $(find lar_apriltag)/rviz/lar.rviz"/>
+</launch>
