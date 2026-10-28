@@ -12,6 +12,8 @@ Docker environment (ROS Noetic, Gazebo 11) that runs the
 The container is self-contained: the host only needs Docker. The host's Ubuntu/ROS version does not matter
 (tested setup: Ubuntu 22.04 host with ROS 2 Humble installed, which is not used by this project).
 
+[Simulation Demo](docs/lar_gazebo.gif)
+
 ## Requirements
 
 - Linux host with an X11 session (Wayland works through XWayland)
@@ -60,8 +62,6 @@ Launch arguments are passed straight to `roslaunch`:
 
 Run these inside `./scripts/shell.sh`.
 
-Tag pose raw detection topic
-
 ```bash
 rostopic echo /apriltag/tag_detections                       # raw detection (tag pose in the camera frame)
 rostopic echo /apriltag_robot_localization/pose              # estimated robot pose (frame world)
@@ -73,15 +73,17 @@ rqt_plot /apriltag_robot_localization/estimate/error_x /apriltag_robot_localizat
 
 ## Results
 
-- **`Permission denied` on `./scripts/*.sh`** — run the `chmod +x` command from the installation section.
-- **`cannot open display`** — check `echo $DISPLAY`, run `xhost +local:docker`, or log in with "Ubuntu on Xorg".
-- **Tag not detected** — open `rqt_image_view` on `/overhead_camera/image_raw`: the robot must be visible
-  and the tag must not be covered by sensors (raise `tag_mount_z`). Check the camera position (`cam_x/cam_y/cam_z`).
-- **Warnings `Requested description of standalone tag ID [3]`** — harmless: the lab walls contain other
-  AprilTags that are not listed in `config/tags.yaml`.
-- **`TF_REPEATED_DATA` warning** — harmless (duplicate timestamp ignored by TF); lowering the camera `update_rate` helps.
-- **Yaw error constantly ±90° or 180°** — adjust `tag_yaw_correction` (multiples of 1.5708).
-- **`rostopic echo` says "no messages received and simulated time is active"** — the topic has no publisher yet
-  (usually the tag is not being detected) or the simulation is paused.
-- **ROS 2 on the host cannot see the topics** — this simulation is ROS 1 (Noetic); use `./scripts/shell.sh`
-  or a `ros1_bridge`.
+### Error plots
+
+**Pose error (x, y, yaw)**
+
+![Position error](docs/error_pose.png)
+
+**Localization estimated topic**
+
+![Yaw error](docs/localization_estimated_topic.png)
+
+**Estimated vs. real trajectory (world frame)**
+
+![Trajectory](docs/trajectory_ground_truth.png)
+![Trajectory](docs/trajectory_estimated.png)
