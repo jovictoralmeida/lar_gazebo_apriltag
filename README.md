@@ -12,7 +12,10 @@ Docker environment (ROS Noetic, Gazebo 11) that runs the
 The container is self-contained: the host only needs Docker. The host's Ubuntu/ROS version does not matter
 (tested setup: Ubuntu 22.04 host with ROS 2 Humble installed, which is not used by this project).
 
-![Simulation Demo](docs/lar_gazebo.gif)
+
+<p align="center">
+  <img src="docs/lar_gazebo.gif" width="500" alt="Simulation Demo">
+</p>
 
 ## Requirements
 
