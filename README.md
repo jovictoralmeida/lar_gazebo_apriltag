@@ -90,3 +90,6 @@ rqt_plot /apriltag_robot_localization/estimate/error_x /apriltag_robot_localizat
 
 ![Trajectory](docs/trajectory_ground_truth.png)
 ![Trajectory](docs/trajectory_estimated.png)
+
+### Video demonstration
+[![Demo video](docs/thumbnail.png)](https://youtu.be/6SnU7OYSMHI)
